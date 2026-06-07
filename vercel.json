@@ -1,5 +1,3 @@
 {
-  "rewrites": [
-    { "source": "/", "destination": "/zymix_pip_final.html" }
-  ]
+  "cleanUrls": true
 }
