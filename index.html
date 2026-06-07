@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pip — ZYMIX</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --lime:#9EF745;--lime-lt:#CDF94F;--lime-dp:#5FB52E;
+  --lime-grad:linear-gradient(135deg,#CDF94F,#5FB52E);
+  --grn-txt:#489730;--ink:#111111;--wh:#FFFFFF;
+  --surf:#F5F6F7;--mut:#6B7280;
+  --pur:#7C5CFC;--pur-soft:#EDE9FE;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--ink);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;color:var(--wh)}
+
+.glow{position:fixed;border-radius:50%;filter:blur(120px);pointer-events:none;z-index:0}
+.gl1{width:500px;height:500px;background:rgba(158,247,69,.07);top:-160px;left:-140px;animation:gd1 16s ease-in-out infinite}
+.gl2{width:400px;height:400px;background:rgba(124,92,252,.06);bottom:-120px;right:-120px;animation:gd2 19s ease-in-out infinite}
+@keyframes gd1{0%,100%{transform:translate(0,0)}50%{transform:translate(80px,60px)}}
+@keyframes gd2{0%,100%{transform:translate(0,0)}50%{transform:translate(-70px,-50px)}}
+
+.page-label{position:fixed;top:26px;font-family:'Poppins',sans-serif;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--lime);z-index:10;opacity:0;animation:fu .7s ease .2s forwards}
+@keyframes fu{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fi{to{opacity:1}}
+
+.phone-wrap{position:relative;z-index:5;opacity:0;animation:fi 1s ease .3s forwards}
+.phone{width:356px;height:720px;background:#0A0A0A;border-radius:48px;padding:10px;box-shadow:0 0 0 1px rgba(158,247,69,.06),0 30px 80px rgba(0,0,0,.5),0 0 120px rgba(158,247,69,.04);position:relative}
+.phone-screen{width:100%;height:100%;background:var(--wh);border-radius:40px;overflow:hidden;position:relative;display:flex;flex-direction:column}
+
+.di{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:100px;height:28px;background:var(--lime-grad);border-radius:18px;z-index:30;opacity:.85}
+.app-hdr{position:absolute;top:0;left:0;right:0;height:52px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px;z-index:25;pointer-events:none}
+.app-hdr img{height:18px;opacity:.55;object-fit:contain}
+
+.bnav{height:58px;background:var(--wh);border-top:1px solid #E5E7EB;display:flex;align-items:center;justify-content:space-around;padding:0 8px;flex-shrink:0;z-index:20}
+.bnav-item{display:flex;flex-direction:column;align-items:center;gap:2px;opacity:.35;transition:opacity .2s}
+.bnav-item svg{width:20px;height:20px}
+.bnav-item span{font-size:9px;font-weight:600;letter-spacing:.3px}
+.bnav-item.active{opacity:1}
+.bnav-item.active svg{color:var(--lime-dp)}
+.bnav-item.active span{color:var(--lime-dp)}
+
+.scr-area{flex:1;position:relative;overflow:hidden}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;padding:58px 22px 16px;transition:transform .55s cubic-bezier(.4,0,.2,1),opacity .55s ease;will-change:transform,opacity}
+.screen.active{transform:translateX(0);opacity:1}
+.screen.exit-l{transform:translateX(-20%);opacity:0;pointer-events:none}
+.screen.enter-r{transform:translateX(20%);opacity:0;pointer-events:none}
+.screen.hid{transform:translateX(20%);opacity:0;pointer-events:none}
+
+/* Welcome */
+.scr-welcome{align-items:center;justify-content:center;text-align:center}
+.zymix-logo-welcome{width:72px;height:auto;margin-bottom:16px;opacity:0;transition:opacity .6s ease}
+.zymix-logo-welcome.vis{opacity:1}
+.pip-hero{width:110px;height:110px;border-radius:50%;object-fit:cover;object-position:center;margin-bottom:24px;border:3px solid var(--pur);box-shadow:0 0 40px rgba(124,92,252,.15);animation:bob 2.8s ease-in-out infinite;background:var(--pur-soft)}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.wl1{font-family:'Poppins',sans-serif;font-size:22px;font-weight:700;color:var(--ink);line-height:1.35;min-height:30px;margin-bottom:6px}
+.wl2{font-size:14px;font-weight:500;color:var(--mut);line-height:1.55;max-width:260px;min-height:44px}
+.cursor{display:inline-block;width:2px;height:1.05em;background:var(--pur);margin-left:2px;vertical-align:text-bottom;animation:bk .55s step-end infinite}
+@keyframes bk{0%,100%{opacity:1}50%{opacity:0}}
+.lime-bar{width:48px;height:4px;border-radius:2px;background:var(--lime-grad);margin:0 auto 22px;opacity:0;transition:opacity .6s ease}
+.lime-bar.vis{opacity:1}
+
+/* Pick */
+.scr-pick{gap:0}
+.pick-hdr{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.pip-sm{width:32px;height:32px;border-radius:50%;object-fit:cover;object-position:center;flex-shrink:0;background:var(--pur-soft);border:2px solid var(--pur);animation:bob 2.8s ease-in-out infinite;transition:opacity .3s}
+.pick-title{font-family:'Poppins',sans-serif;font-size:16px;font-weight:700;color:var(--ink)}
+.nudge{display:flex;align-items:flex-start;gap:8px;margin-bottom:12px;opacity:0;transform:translateY(8px);transition:all .45s cubic-bezier(.34,1.56,.64,1)}
+.nudge.vis{opacity:1;transform:translateY(0)}
+.pip-xs{width:24px;height:24px;border-radius:50%;object-fit:cover;object-position:center;flex-shrink:0;margin-top:3px;background:var(--pur-soft);border:1.5px solid var(--pur);transition:opacity .3s}
+.nudge-bub{font-size:12.5px;font-weight:600;color:var(--pur);padding:9px 13px;background:var(--pur-soft);border-radius:14px 14px 14px 4px;line-height:1.45}
+.grid{display:flex;flex-wrap:wrap;gap:8px}
+.tag{padding:8px 15px;border-radius:100px;font-family:'Poppins',sans-serif;font-size:11.5px;font-weight:600;border:2px solid #E5E7EB;background:var(--surf);color:var(--ink);cursor:pointer;opacity:0;transform:translateY(10px) scale(.95);transition:all .3s cubic-bezier(.34,1.56,.64,1);user-select:none;touch-action:manipulation}
+.tag.app{opacity:1;transform:translateY(0) scale(1)}
+.tag.sel{background:var(--lime);border-color:var(--lime-dp);color:var(--ink);transform:scale(.93);font-weight:700}
+.tag.sel::after{content:' \2713';font-size:10px;margin-left:1px}
+
+/* Bottom animation area */
+.pick-bottom{margin-top:auto;padding-top:10px;display:flex;flex-direction:column;align-items:center;gap:6px;position:relative;min-height:100px}
+
+/* Dancing Pip */
+.pick-pip-wrap{position:relative;width:56px;height:56px;margin-bottom:2px}
+.pick-pip-btm{width:56px;height:56px;border-radius:50%;object-fit:cover;object-position:center;border:2.5px solid var(--pur);background:var(--pur-soft);animation:pipDance 1.6s ease-in-out infinite;position:relative;z-index:2}
+@keyframes pipDance{
+  0%,100%{transform:translateY(0) rotate(0deg) scale(1)}
+  25%{transform:translateY(-5px) rotate(-4deg) scale(1.02)}
+  50%{transform:translateY(0) rotate(0deg) scale(1)}
+  75%{transform:translateY(-5px) rotate(4deg) scale(1.02)}
+}
+.pick-pip-btm.excited{animation:pipExcited .7s ease-in-out infinite}
+@keyframes pipExcited{
+  0%,100%{transform:translateY(0) rotate(0deg) scale(1)}
+  25%{transform:translateY(-10px) rotate(-8deg) scale(1.08)}
+  50%{transform:translateY(0) rotate(0deg) scale(1)}
+  75%{transform:translateY(-10px) rotate(8deg) scale(1.08)}
+}
+.pick-pip-btm.super{animation:pipSuper .5s ease-in-out infinite}
+@keyframes pipSuper{
+  0%,100%{transform:translateY(0) rotate(0deg) scale(1)}
+  25%{transform:translateY(-14px) rotate(-10deg) scale(1.12)}
+  50%{transform:translateY(0) rotate(0deg) scale(1)}
+  75%{transform:translateY(-14px) rotate(10deg) scale(1.12)}
+}
+
+/* Pip shadow */
+.pip-shadow{width:40px;height:6px;border-radius:50%;background:rgba(0,0,0,.08);margin:-2px auto 0;animation:shadowPulse 1.6s ease-in-out infinite}
+@keyframes shadowPulse{0%,100%{transform:scaleX(1);opacity:.6}50%{transform:scaleX(.7);opacity:.3}}
+.pip-shadow.excited{animation:shadowFast .7s ease-in-out infinite}
+@keyframes shadowFast{0%,100%{transform:scaleX(1);opacity:.6}50%{transform:scaleX(.5);opacity:.2}}
+.pip-shadow.super{animation:shadowFaster .5s ease-in-out infinite}
+@keyframes shadowFaster{0%,100%{transform:scaleX(1);opacity:.6}50%{transform:scaleX(.4);opacity:.15}}
+
+/* Progress dots */
+.prog-row{display:flex;gap:8px;justify-content:center;margin:4px 0}
+.prog-dot{width:10px;height:10px;border-radius:50%;background:#E5E7EB;transition:all .35s cubic-bezier(.34,1.56,.64,1)}
+.prog-dot.filled{background:var(--lime);box-shadow:0 0 8px rgba(158,247,69,.45);transform:scale(1.25)}
+.prog-dot.filled.pop{animation:dotPop .4s cubic-bezier(.34,1.56,.64,1)}
+@keyframes dotPop{0%{transform:scale(1.25)}50%{transform:scale(1.6)}100%{transform:scale(1.25)}}
+
+/* Counter */
+.pick-counter{font-family:'Poppins',sans-serif;font-size:10px;font-weight:600;color:var(--mut);letter-spacing:.5px;transition:color .3s ease}
+.pick-counter.lit{color:var(--lime-dp)}
+
+/* Matching pulse */
+.mpulse{display:flex;align-items:center;gap:5px;justify-content:center;opacity:0;transition:opacity .35s ease;height:20px}
+.mpulse.vis{opacity:1}
+.pdot{width:6px;height:6px;border-radius:50%;background:var(--lime-dp);animation:pd 1.1s ease-in-out infinite}
+.pdot:nth-child(2){animation-delay:.18s}
+.pdot:nth-child(3){animation-delay:.36s}
+@keyframes pd{0%,100%{transform:scale(.5);opacity:.3}50%{transform:scale(1);opacity:1}}
+.mtxt{font-size:10px;font-weight:600;color:var(--lime-dp);letter-spacing:.3px}
+
+/* Floating reactions */
+.float-reac{position:absolute;border-radius:50%;pointer-events:none;z-index:10}
+
+/* Match */
+.scr-match{align-items:center;justify-content:center;gap:16px}
+.mcard{width:100%;max-width:280px;background:var(--wh);border-radius:20px;padding:22px 20px 20px;box-shadow:0 2px 20px rgba(0,0,0,.06);border:1px solid #E5E7EB;opacity:0;transform:translateY(24px) scale(.95);transition:all .5s cubic-bezier(.34,1.56,.64,1);text-align:center}
+.mcard.vis{opacity:1;transform:translateY(0) scale(1);box-shadow:0 4px 32px rgba(0,0,0,.08),0 0 48px rgba(158,247,69,.06)}
+.mpip{width:88px;height:88px;border-radius:50%;object-fit:cover;object-position:center;margin:0 auto 12px;display:block;background:var(--surf);border:3px solid var(--pur);box-shadow:0 4px 16px rgba(124,92,252,.12)}
+.mname{font-family:'Poppins',sans-serif;font-size:19px;font-weight:700;color:var(--ink);margin-bottom:2px}
+.mmajor{font-size:11.5px;font-weight:500;color:var(--mut);margin-bottom:12px}
+.mshared{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;background:rgba(158,247,69,.15);border-radius:100px;font-size:11px;font-weight:700;color:var(--lime-dp);margin-bottom:16px}
+.mshared svg{flex-shrink:0}
+.mbtn{width:100%;padding:11px;border:none;border-radius:14px;background:var(--lime-grad);color:var(--ink);font-family:'Poppins',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s ease;touch-action:manipulation}
+.mbtn:hover{box-shadow:0 4px 18px rgba(158,247,69,.4);transform:translateY(-1px)}
+.mbtn.sent{background:var(--lime-dp);color:var(--wh);pointer-events:none}
+.pmsg{display:flex;align-items:flex-start;gap:8px;max-width:280px;opacity:0;transform:translateY(8px);transition:all .45s cubic-bezier(.34,1.56,.64,1)}
+.pmsg.vis{opacity:1;transform:translateY(0)}
+.pmsg-av{width:26px;height:26px;border-radius:50%;object-fit:cover;object-position:center;flex-shrink:0;margin-top:3px;background:var(--pur-soft);border:1.5px solid var(--pur)}
+.pmsg-bub{font-size:12.5px;font-weight:500;color:var(--ink);line-height:1.5;padding:10px 13px;background:var(--pur-soft);border-radius:14px 14px 14px 4px;min-height:18px}
+.find-ot{font-family:'Poppins',sans-serif;font-size:11px;font-weight:600;color:var(--grn-txt);cursor:pointer;opacity:0;transform:translateY(6px);transition:all .35s ease;touch-action:manipulation;text-decoration:underline;text-underline-offset:3px}
+.find-ot.vis{opacity:1;transform:translateY(0)}
+.find-ot:hover{color:var(--pur)}
+.ptcl{position:absolute;border-radius:50%;pointer-events:none;z-index:30}
+
+.tl{display:flex;align-items:center;gap:0;margin-top:26px;z-index:10;opacity:0;animation:fu .7s ease .8s forwards}
+.tl-s{display:flex;align-items:center;gap:5px}
+.tl-d{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.15);transition:all .4s ease}
+.tl-d.act{background:var(--lime);box-shadow:0 0 10px rgba(158,247,69,.5)}
+.tl-d.dn{background:var(--lime-dp)}
+.tl-l{font-family:'Poppins',sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.25);transition:color .4s ease}
+.tl-l.act{color:var(--lime)}
+.tl-l.dn{color:var(--lime-dp)}
+.tl-ln{width:24px;height:2px;background:rgba(255,255,255,.1);margin:0 6px;transition:background .4s ease}
+.tl-ln.dn{background:var(--lime-dp)}
+.rbtn{position:fixed;bottom:26px;padding:9px 24px;border:2px solid var(--lime);border-radius:100px;background:transparent;color:var(--lime);font-family:'Poppins',sans-serif;font-size:12px;font-weight:700;cursor:pointer;z-index:20;opacity:0;transform:translateY(8px);transition:all .3s ease;pointer-events:none;touch-action:manipulation}
+.rbtn.vis{opacity:1;transform:translateY(0);pointer-events:auto}
+.rbtn:hover{background:var(--lime);color:var(--ink)}
+
+@media(max-height:780px){.phone{transform:scale(.86);transform-origin:center}}
+@media(max-height:640px){.phone{transform:scale(.7);transform-origin:center}}
+@media(max-width:380px){.phone{width:320px;height:650px;border-radius:42px;padding:8px}.phone-screen{border-radius:36px}.screen{padding:50px 16px 12px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+
+<div class="glow gl1"></div>
+<div class="glow gl2"></div>
+<div class="page-label">ZYMIX &times; Pip</div>
+
+<div class="phone-wrap">
+<div class="phone">
+<div class="phone-screen">
+
+<div class="di"></div>
+<div class="app-hdr">
+  <img src="assets/transparent-ZYMIX-logo pip_fotor_agent_2026-6-6.png" alt="ZYMIX">
+</div>
+
+<div class="scr-area">
+
+<!-- Welcome -->
+<div class="screen scr-welcome active" id="s-w">
+  <div class="lime-bar" id="lbar"></div>
+  <img class="zymix-logo-welcome" id="zlogo" src="assets/transparent-ZYMIX-logo pip_fotor_agent_2026-6-6.png" alt="ZYMIX">
+  <img class="pip-hero" id="w-pip" src="assets/transparent-pip_fotor_agent_2026-6-6.png" alt="Pip">
+  <div class="wl1" id="wl1"></div>
+  <div class="wl2" id="wl2"></div>
+</div>
+
+<!-- Pick -->
+<div class="screen scr-pick hid" id="s-p">
+  <div class="pick-hdr">
+    <img class="pip-sm" id="h-pip" src="assets/transparent-pip_fotor_agent_2026-6-6.png" alt="Pip">
+    <span class="pick-title">What do you love?</span>
+  </div>
+  <div class="nudge" id="ndg">
+    <img class="pip-xs" id="n-pip" src="assets/transparent-pip_fotor_agent_2026-6-6.png" alt="Pip">
+    <div class="nudge-bub" id="ndg-t"></div>
+  </div>
+  <div class="grid" id="grid"></div>
+
+  <!-- Bottom animation area -->
+  <div class="pick-bottom" id="pick-bottom">
+    <div class="pick-pip-wrap" id="pip-wrap">
+      <img class="pick-pip-btm" id="pip-btm" src="assets/transparent-pip_fotor_agent_2026-6-6.png" alt="Pip">
+    </div>
+    <div class="pip-shadow" id="pip-shd"></div>
+    <div class="prog-row" id="prog-row"></div>
+    <div class="pick-counter" id="pick-ctr">0 picked</div>
+    <div class="mpulse" id="mp">
+      <div class="pdot"></div><div class="pdot"></div><div class="pdot"></div>
+      <span class="mtxt">Finding your people&hellip;</span>
+    </div>
+  </div>
+</div>
+
+<!-- Match -->
+<div class="screen scr-match hid" id="s-m">
+  <div class="mcard" id="mc">
+    <img class="mpip" id="mc-pip" src="" alt="Pip">
+    <div class="mname" id="mc-nm"></div>
+    <div class="mmajor" id="mc-maj"></div>
+    <div class="mshared" id="mc-sh">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+      <span id="mc-sht"></span>
+    </div>
+    <button class="mbtn" id="mc-btn">Say hi</button>
+  </div>
+  <div class="pmsg" id="pm">
+    <img class="pmsg-av" id="pm-av" src="" alt="Pip">
+    <div class="pmsg-bub" id="pm-t"></div>
+  </div>
+  <div class="find-ot" id="fo">Find another match</div>
+</div>
+
+</div>
+
+<div class="bnav">
+  <div class="bnav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12l9-9 9 9"/><path d="M5 10v9a1 1 0 001 1h4v-5h4v5h4a1 1 0 001-1v-9"/></svg>
+    <span>Home</span>
+  </div>
+  <div class="bnav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    <span>Events</span>
+  </div>
+  <div class="bnav-item active">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/></svg>
+    <span>Pip</span>
+  </div>
+  <div class="bnav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="6" width="20" height="14" rx="2"/><line x1="6" y1="2" x2="6" y2="6"/><line x1="18" y1="2" x2="18" y2="6"/></svg>
+    <span>Wallet</span>
+  </div>
+  <div class="bnav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-7 8-7s8 3 8 7"/></svg>
+    <span>Profile</span>
+  </div>
+</div>
+
+</div>
+</div>
+</div>
+
+<nav class="tl" aria-label="Demo progress">
+  <div class="tl-s"><div class="tl-d act" id="td0"></div><span class="tl-l act" id="tl0">Greet</span></div>
+  <div class="tl-ln" id="tln0"></div>
+  <div class="tl-s"><div class="tl-d" id="td1"></div><span class="tl-l" id="tl1">Pick</span></div>
+  <div class="tl-ln" id="tln1"></div>
+  <div class="tl-s"><div class="tl-d" id="td2"></div><span class="tl-l" id="tl2">Match</span></div>
+</nav>
+
+<button class="rbtn" id="rbtn" aria-label="Replay">Replay</button>
+
+<script>
+const CATS=[
+  {id:'anime',label:'Anime'},
+  {id:'kpop',label:'K-pop'},
+  {id:'bubbletea',label:'Bubble Tea'},
+  {id:'food',label:'Food'},
+  {id:'gaming',label:'Gaming'},
+  {id:'football',label:'Football'},
+  {id:'reading',label:'Reading'}
+];
+
+const PIP={
+  anime:'assets/pip-anime.jpg',
+  kpop:'assets/pip-kpop.jpg',
+  bubbletea:'assets/pip-bubbletea.jpg',
+  food:'assets/pip-food.jpg',
+  gaming:'assets/pip-gaming.png',
+  football:'assets/pip-football.jpg',
+  reading:'assets/transparent-pip_fotor_agent_2026-6-6.png'
+};
+const PIP_DEF=PIP.reading;
+Object.values(PIP).forEach(u=>{const i=new Image();i.src=u});
+
+const MATCHES={
+  anime:[
+    {name:'Kai', major:'Illustration at UCL',              text:"Found someone. You and Kai both love anime, and he's sketching the same series right now."},
+    {name:'Yuna',major:'Computer Science at Imperial',      text:"Found someone. You and Yuna both love anime. She's been looking for someone to geek out with."},
+    {name:'Sora',major:'Film Studies at King\'s College',   text:"Found someone. You and Sora both love anime. She's got a watch list you'd get along with."}
+  ],
+  kpop:[
+    {name:'Mina',major:'Music at King\'s College',          text:"Found someone. You and Mina both love K-pop, and she's got spare tickets for next month's gig."},
+    {name:'Joon',major:'Cultural Studies at LSE',           text:"Found someone. You and Joon both love K-pop. He knows every choreo — fair warning."},
+    {name:'Hye', major:'Media and Comms at UCL',            text:"Found someone. You and Hye both love K-pop. She's making a playlist and you'd fit right in."}
+  ],
+  bubbletea:[
+    {name:'Suki',major:'Pharmacology at UCL',               text:"Found someone. You and Suki both love bubble tea, and she knows every spot within ten minutes."},
+    {name:'Lei', major:'Economics at LSE',                  text:"Found someone. You and Lei both love bubble tea. He's got strong opinions on the best matcha in town."},
+    {name:'Nari',major:'Chemistry at Imperial',             text:"Found someone. You and Nari both love bubble tea. She's tried every flavour on the menu — ask her anything."}
+  ],
+  food:[
+    {name:'Aisha',major:'Biochemistry at Imperial',         text:"Found someone. You and Aisha both love food, and she's always got a recommendation ready."},
+    {name:'Tom',  major:'Business at King\'s College',      text:"Found someone. You and Tom both love food. He's the one who always orders extra for the table."},
+    {name:'Priya',major:'Nutrition at UCL',                 text:"Found someone. You and Priya both love food. She knows which halls have the best dinners."}
+  ],
+  gaming:[
+    {name:'Ren',  major:'Computer Science at Imperial',      text:"Found someone. You and Ren both love gaming, and he's one teammate short for tonight."},
+    {name:'Zara', major:'Digital Design at UCL',             text:"Found someone. You and Zara both love gaming. She's always up for a session."},
+    {name:'Felix',major:'Physics at King\'s College',        text:"Found someone. You and Felix both love gaming. He's speedrunning the same game you just started."}
+  ],
+  football:[
+    {name:'Dani',  major:'Sports Science at LSE',            text:"Found someone. You and Dani both love football, and he's watching the match at the pub round the corner."},
+    {name:'Jess',  major:'Engineering at Imperial',          text:"Found someone. You and Jess both love football. She never misses a game day."},
+    {name:'Marcus',major:'History at UCL',                   text:"Found someone. You and Marcus both love football. He's organising a five-a-side this Wednesday."}
+  ],
+  reading:[
+    {name:'Clara',major:'English Lit at King\'s College',    text:"Found someone. You and Clara both love reading. She runs a study group — might be worth joining."},
+    {name:'Theo', major:'Philosophy at UCL',                 text:"Found someone. You and Theo both love reading. He's got notes to share and a study slot booked."},
+    {name:'Amira',major:'Law at LSE',                        text:"Found someone. You and Amira both love reading. She's forming a study circle for next term."}
+  ]
+};
+
+/* DOM refs */
+const sW=document.getElementById('s-w');
+const sP=document.getElementById('s-p');
+const sM=document.getElementById('s-m');
+const wl1=document.getElementById('wl1');
+const wl2=document.getElementById('wl2');
+const lbar=document.getElementById('lbar');
+const zlogo=document.getElementById('zlogo');
+const hPip=document.getElementById('h-pip');
+const nPip=document.getElementById('n-pip');
+const ndg=document.getElementById('ndg');
+const ndgT=document.getElementById('ndg-t');
+const grid=document.getElementById('grid');
+const pipBtm=document.getElementById('pip-btm');
+const pipShd=document.getElementById('pip-shd');
+const pipWrap=document.getElementById('pip-wrap');
+const progRow=document.getElementById('prog-row');
+const pickCtr=document.getElementById('pick-ctr');
+const mp=document.getElementById('mp');
+const mc=document.getElementById('mc');
+const mcPip=document.getElementById('mc-pip');
+const mcNm=document.getElementById('mc-nm');
+const mcMaj=document.getElementById('mc-maj');
+const mcSht=document.getElementById('mc-sht');
+const mcBtn=document.getElementById('mc-btn');
+const pm=document.getElementById('pm');
+const pmAv=document.getElementById('pm-av');
+const pmT=document.getElementById('pm-t');
+const fo=document.getElementById('fo');
+const rbtn=document.getElementById('rbtn');
+
+const td=[document.getElementById('td0'),document.getElementById('td1'),document.getElementById('td2')];
+const tl=[document.getElementById('tl0'),document.getElementById('tl1'),document.getElementById('tl2')];
+const tln=[document.getElementById('tln0'),document.getElementById('tln1')];
+
+let selIds=[],mQueue=[],mIdx=0,running=false;
+const DEMO_ORD=['anime','kpop','bubbletea','gaming','football'];
+
+const W=ms=>new Promise(r=>setTimeout(r,ms));
+
+function typeTo(el,text,spd=40){
+  return new Promise(res=>{
+    el.textContent='';
+    const c=document.createElement('span');
+    c.className='cursor';el.appendChild(c);
+    let i=0;
+    (function t(){
+      if(i<text.length){el.insertBefore(document.createTextNode(text[i]),c);i++;setTimeout(t,spd)}
+      else{setTimeout(()=>{c.remove();res()},450)}
+    })();
+  });
+}
+
+function goScr(from,to){
+  from.classList.remove('active');from.classList.add('exit-l');
+  to.classList.remove('hid');to.classList.add('enter-r');
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{to.classList.remove('enter-r');to.classList.add('active')}));
+  setTimeout(()=>{from.classList.remove('exit-l');from.classList.add('hid')},600);
+}
+
+function setTL(s){
+  const idx={greet:0,pick:1,match:2}[s];
+  td.forEach((d,i)=>{d.classList.remove('act','dn');tl[i].classList.remove('act','dn')});
+  tln.forEach(l=>l.classList.remove('dn'));
+  td.forEach((d,i)=>{
+    if(i<idx){d.classList.add('dn');tl[i].classList.add('dn');if(i<2)tln[i].classList.add('dn')}
+    else if(i===idx){d.classList.add('act');tl[i].classList.add('act')}
+  });
+}
+
+function labelFor(id){const o=CATS.find(c=>c.id===id);return o?o.label:id}
+
+function buildProgDots(){
+  progRow.innerHTML='';
+  CATS.forEach(()=>{
+    const d=document.createElement('div');
+    d.className='prog-dot';
+    progRow.appendChild(d);
+  });
+}
+
+function updateProgress(){
+  const n=selIds.length;
+  const dots=progRow.querySelectorAll('.prog-dot');
+  dots.forEach((d,i)=>{
+    const wasFilled=d.classList.contains('filled');
+    if(i<n&&!wasFilled){
+      d.classList.add('filled');
+      d.classList.add('pop');
+      setTimeout(()=>d.classList.remove('pop'),400);
+    }else if(i>=n){
+      d.classList.remove('filled');
+    }
+  });
+  pickCtr.textContent=n+' picked';
+  pickCtr.classList.toggle('lit',n>=3);
+
+  pipBtm.classList.remove('excited','super');
+  pipShd.classList.remove('excited','super');
+  if(n>=5){
+    pipBtm.classList.add('super');
+    pipShd.classList.add('super');
+  }else if(n>=3){
+    pipBtm.classList.add('excited');
+    pipShd.classList.add('excited');
+  }
+}
+
+function spawnReaction(){
+  const wrapRect=pipWrap.getBoundingClientRect();
+  const scrRect=sP.getBoundingClientRect();
+  const cx=wrapRect.left-scrRect.left+wrapRect.width/2;
+  const cy=wrapRect.top-scrRect.top+wrapRect.height/2;
+
+  const cols=['#9EF745','#CDF94F','#7C5CFC','#EDE9FE','#FFC35A','#5FB52E'];
+  const count=4+Math.floor(Math.random()*3);
+  for(let i=0;i<count;i++){
+    const p=document.createElement('div');
+    p.className='float-reac';
+    const sz=4+Math.random()*6;
+    p.style.width=sz+'px';
+    p.style.height=sz+'px';
+    p.style.background=cols[Math.floor(Math.random()*cols.length)];
+    p.style.left=(cx+(Math.random()-0.5)*20)+'px';
+    p.style.top=cy+'px';
+    sP.appendChild(p);
+
+    const angle=Math.random()*Math.PI*2;
+    const v=30+Math.random()*50;
+    const dx=Math.cos(angle)*v;
+    const dy=Math.sin(angle)*v-40;
+
+    p.animate([
+      {transform:'translate(-50%,-50%) scale(1)',opacity:1},
+      {transform:`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px)) scale(0)`,opacity:0}
+    ],{
+      duration:600+Math.random()*400,
+      easing:'cubic-bezier(0,0.8,0.5,1)',
+      fill:'forwards'
+    }).onfinish=()=>p.remove();
+  }
+}
+
+function buildTags(){
+  grid.innerHTML='';
+  CATS.forEach(c=>{
+    const t=document.createElement('div');
+    t.className='tag';t.textContent=c.label;t.dataset.id=c.id;
+    t.addEventListener('click',()=>{
+      if(running)return;
+      if(!t.classList.contains('sel')){
+        t.classList.add('sel');selIds.push(c.id);
+        swapPip(c.id);updateProgress();spawnReaction();checkNudge();
+      }
+    });
+    grid.appendChild(t);
+  });
+}
+
+async function staggerIn(){
+  const tags=grid.querySelectorAll('.tag');
+  for(let i=0;i<tags.length;i++){await W(50);tags[i].classList.add('app')}
+}
+
+function selTag(id){
+  const t=grid.querySelector(`[data-id="${id}"]`);
+  if(t&&!t.classList.contains('sel')){
+    t.classList.add('sel');selIds.push(id);
+    swapPip(id);updateProgress();spawnReaction();
+    return true;
+  }
+  return false;
+}
+
+function swapPip(id){
+  const u=PIP[id];if(!u)return;
+  hPip.src=u;nPip.src=u;pipBtm.src=u;
+}
+
+function checkNudge(){
+  const n=selIds.length;
+  if(n===3){
+    ndgT.textContent="Nice, three so far. Add a couple more and the matches get better.";
+    ndg.classList.add('vis');
+  }else if(n>=5&&ndg.classList.contains('vis')){
+    ndgT.textContent="Nice one. Let me find your people…";
+  }
+}
+
+function pickMatch(id){
+  const pool=MATCHES[id];
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+function buildQ(){
+  mQueue=[...selIds];
+  for(let i=mQueue.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[mQueue[i],mQueue[j]]=[mQueue[j],mQueue[i]]}
+  mIdx=0;
+}
+function showMatch(id){
+  const m=pickMatch(id);
+  mcPip.src=PIP[id];
+  mcNm.textContent=m.name;
+  mcMaj.textContent=m.major;
+  mcSht.textContent=labelFor(id);
+  mcBtn.textContent='Say hi';mcBtn.classList.remove('sent');
+  pmAv.src=PIP[id];
+  pmT.textContent=m.text;
+  mc.classList.remove('vis');pm.classList.remove('vis');fo.classList.remove('vis');
+  setTimeout(()=>mc.classList.add('vis'),60);
+  setTimeout(()=>celebrate(),320);
+  setTimeout(()=>pm.classList.add('vis'),480);
+  setTimeout(()=>fo.classList.add('vis'),850);
+}
+function nextMatch(){
+  if(!mQueue.length)return;
+  const id=mQueue[mIdx%mQueue.length];mIdx++;
+  mc.classList.remove('vis');pm.classList.remove('vis');fo.classList.remove('vis');
+  setTimeout(()=>showMatch(id),380);
+}
+
+function celebrate(){
+  const cr=mc.getBoundingClientRect();
+  const sr=sM.getBoundingClientRect();
+  const cx=cr.left-sr.left+cr.width/2;
+  const cy=cr.top-sr.top+cr.height/2;
+  const cols=['#9EF745','#CDF94F','#5FB52E','#7C5CFC','#EDE9FE','#FFC35A'];
+  for(let i=0;i<20;i++){
+    const p=document.createElement('div');p.className='ptcl';
+    const sz=4+Math.random()*6;
+    p.style.width=sz+'px';p.style.height=sz+'px';
+    p.style.background=cols[Math.floor(Math.random()*cols.length)];
+    p.style.left=cx+'px';p.style.top=cy+'px';
+    sM.appendChild(p);
+    const a=Math.random()*Math.PI*2,v=65+Math.random()*85;
+    const dx=Math.cos(a)*v,dy=Math.sin(a)*v-45;
+    p.animate([
+      {transform:'translate(-50%,-50%) scale(1)',opacity:1},
+      {transform:`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px)) scale(0)`,opacity:0}
+    ],{duration:700+Math.random()*400,easing:'cubic-bezier(0,0.8,0.5,1)',fill:'forwards'}).onfinish=()=>p.remove();
+  }
+}
+
+mcBtn.addEventListener('click',()=>{mcBtn.textContent='Sent!';mcBtn.classList.add('sent')});
+fo.addEventListener('click',nextMatch);
+
+async function run(){
+  running=true;
+  rbtn.classList.remove('vis');
+  mcBtn.textContent='Say hi';mcBtn.classList.remove('sent');
+  selIds=[];mQueue=[];mIdx=0;
+
+  sW.className='screen scr-welcome active';
+  sP.className='screen scr-pick hid';
+  sM.className='screen scr-match hid';
+  wl1.textContent='';wl2.textContent='';
+  lbar.classList.remove('vis');zlogo.classList.remove('vis');
+  ndg.classList.remove('vis');ndgT.textContent='';
+  mp.classList.remove('vis');
+  mc.classList.remove('vis');pm.classList.remove('vis');fo.classList.remove('vis');
+
+  hPip.src=PIP_DEF;nPip.src=PIP_DEF;pipBtm.src=PIP_DEF;
+  pipBtm.classList.remove('excited','super');
+  pipShd.classList.remove('excited','super');
+  pickCtr.textContent='0 picked';pickCtr.classList.remove('lit');
+
+  setTL('greet');buildTags();buildProgDots();
+
+  await W(900);
+
+  zlogo.classList.add('vis');
+  await W(400);
+  lbar.classList.add('vis');
+  await typeTo(wl1,"Hi, I'm Pip.",55);
+  await W(300);
+  await typeTo(wl2,"Tick the things you love and I'll find your people.",32);
+  await W(2000);
+
+  setTL('pick');
+  goScr(sW,sP);
+  await W(600);
+  await staggerIn();
+  await W(350);
+
+  for(let i=0;i<DEMO_ORD.length;i++){
+    selTag(DEMO_ORD[i]);
+    await W(460);
+    if(i===2){
+      ndgT.textContent="Nice, three so far. Add a couple more and the matches get better.";
+      ndg.classList.add('vis');
+      await W(1600);
+    }
+  }
+
+  ndgT.textContent="Nice one. Let me find your people…";
+  await W(900);
+  mp.classList.add('vis');
+  await W(1600);
+  mp.classList.remove('vis');
+  await W(200);
+
+  setTL('match');
+  goScr(sP,sM);
+  await W(500);
+  buildQ();
+  showMatch(mQueue[0]);mIdx=1;
+
+  await W(1200);
+  running=false;
+  rbtn.classList.add('vis');
+}
+
+rbtn.addEventListener('click',run);
+run();
+</script>
+</body>
+</html>

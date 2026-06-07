@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pip dialogue box</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  /* To use the real Pip: save your Pip cut-out as pip.png next to this file.
+     Best results: transparent background PNG of just the creature. */
+  html,body{margin:0;height:100%;background:#eef0ec;font-family:'Press Start 2P',monospace;}
+  .stage{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px;box-sizing:border-box;}
+  .pip{width:180px;height:180px;object-fit:contain;animation:bob 2.6s ease-in-out infinite;}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+  .box{width:min(440px,92%);background:#fff;border:4px solid #111;border-radius:14px;
+       box-shadow:0 0 0 3px #fff,0 0 0 6px #111;padding:16px 18px 14px;cursor:pointer;position:relative;}
+  .name{font-size:9px;color:#111;background:#fff;position:absolute;top:-9px;left:16px;padding:0 6px;letter-spacing:1px;}
+  .text{font-size:12px;line-height:1.9;color:#111;min-height:66px;white-space:pre-line;}
+  .arrow{position:absolute;right:14px;bottom:8px;font-size:13px;color:#111;opacity:0;}
+  .hint{font-size:8px;color:#9aa19a;letter-spacing:1px;}
+</style>
+</head>
+<body>
+<div class="stage">
+  <img class="pip" src="pip.png" alt="Pip"
+       onerror="this.style.display='none'">
+  <div class="box" id="box">
+    <div class="name">Pip</div>
+    <div class="text" id="text"></div>
+    <div class="arrow" id="arrow">&#9660;</div>
+  </div>
+  <div class="hint">tap the box</div>
+</div>
+<script>
+(function(){
+  var lines=[
+    "Hi! I'm Pip.\nTap to chat with me.",
+    "Tick the things you\nlove and I'll find\nyour people.",
+    "Found someone! You and\nMaya both love this\nartist.",
+    "She's just up the road\nat King's. Say hi?"
+  ];
+  var i=0,ch=0,typing=false,timer=null,blink=null;
+  var text=document.getElementById('text');
+  var arrow=document.getElementById('arrow');
+  var box=document.getElementById('box');
+  function startBlink(){arrow.style.opacity=1;var on=true;blink=setInterval(function(){on=!on;arrow.style.opacity=on?1:0;},450);}
+  function stopBlink(){if(blink)clearInterval(blink);blink=null;arrow.style.opacity=0;}
+  function type(){
+    typing=true;stopBlink();
+    var s=lines[i];
+    timer=setInterval(function(){
+      ch++;text.textContent=s.slice(0,ch);
+      if(ch>=s.length){clearInterval(timer);typing=false;startBlink();}
+    },42);
+  }
+  function advance(){
+    if(typing){clearInterval(timer);text.textContent=lines[i];ch=lines[i].length;typing=false;startBlink();return;}
+    i=(i+1)%lines.length;ch=0;text.textContent="";type();
+  }
+  box.addEventListener('click',advance);
+  type();
+})();
+</script>
+</body>
+</html>
